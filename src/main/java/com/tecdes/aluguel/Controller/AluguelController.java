@@ -14,11 +14,21 @@ public class AluguelController {
 
     }
 
-    public String processarAluguel(Aluguel aluguel) {
-        
+    public String processarAluguel(Aluguel aluguel){
+        String resultado = aluguel.calcular();
+        repository.salvar(resultado);
+        System.out.println("Pagamento Registrado: " + resultado);
+        return resultado;
     }
 
-    public List<String> listarAlugueis() {
-        
+    public List<String> listarAlugueis(){
+        List<String> lista = repository.Listar();
+        System.out.println("Lista de Alugueis: " + lista);
+        return lista;
     }
 }
+
+    
+
+    
+

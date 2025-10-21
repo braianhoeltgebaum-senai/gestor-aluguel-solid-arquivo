@@ -25,6 +25,7 @@ public class AluguelForm extends JFrame {
     private JComboBox<String> cmbImovel;
     private JTextArea txtResultado;
     private AluguelController controller;
+    private JTextField txtMeses;
 
     public AluguelForm() {
         setSize(420, 520);
@@ -32,6 +33,7 @@ public class AluguelForm extends JFrame {
         setDefaultCloseOperation(3);
         setLayout((LayoutManager) null);
         setResizable(false);
+        
         
         controller = new AluguelController();
         initComponents();
@@ -44,7 +46,7 @@ public class AluguelForm extends JFrame {
         lblValor.setBounds(40, 30, 100, 25);
         add(lblValor);
 
-        JTextField txtValor = new JTextField();
+        txtValor = new JTextField();
         txtValor.setBounds(150, 30, 200, 25);
         add(txtValor);
 
@@ -52,7 +54,7 @@ public class AluguelForm extends JFrame {
         lblMeses.setBounds(40, 70, 100, 25);
         add(lblMeses);
 
-        JTextField txtMeses = new JTextField();
+        txtMeses = new JTextField();
         txtMeses.setBounds(150, 70, 200, 25);
         add(txtMeses);
 
@@ -92,33 +94,45 @@ public class AluguelForm extends JFrame {
         btnSalvarHistorico.addActionListener(e -> btnSalvarHistoricoEmArquivo());
     }
 
-    private void processar() {
+    private void processar(){
         try {
-            double valor = Double.parseDouble(txtValor.getText());
-            String metodo = cmbImovel.getSelectedItem().toString();
-
-            System.out.println(metodo);
-            System.out.println(cmbImovel.getSelectedItem());
-
-            Aluguel aluguel = obterMetodo(metodo);
+            double valorMensal = Double.parseDouble(txtValor.getText());
+            int meses = Integer.parseInt(txtMeses.getText());
+            String tipo = (String) cmbImovel.getSelectedItem();
+            Aluguel aluguel;
+            switch (tipo){
+                case "Casa":
+                    aluguel = new AluguelCasa(valorMensal, meses);
+                    break;
+                case "Apartamento":
+                    aluguel = new AluguelApartamento(valorMensal, meses);
+                    break;
+                case "Comercial":
+                    aluguel = new AluguelComercial(valorMensal, meses);
+                    break;
+                default:
+                    txtResultado.setText("Erro: Tipo de imóvel inválido.");
+                    return;
+            }
 
             String resultado = controller.processarAluguel(aluguel);
             txtResultado.append(resultado + "\n");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Valor inválido...");
+            
+        } catch (NumberFormatException e) {
+            txtResultado.setText("Erro: Valores inválidos.");
         }
     }
 
-    private Aluguel obterMetodo(String metodo){
+    // private Aluguel obterMetodo(String metodo){
     
-        if(metodo.equals("Casa")){
-            return new AluguelCasa();
-        }
-        if(metodo.equals("Apartamento")){
-            return new AluguelApartamento();
-        }
-        return new AluguelComercial();
-    }
+    //     if(metodo.equals("Casa")){
+    //         return new AluguelCasa();
+    //     }
+    //     if(metodo.equals("Apartamento")){
+    //         return new AluguelApartamento();
+    //     }
+    //     return new AluguelComercial();
+    // }
 
     private void btnSalvarHistoricoEmArquivo() {
         List<String> alugueis = controller.listarAlugueis();
@@ -128,7 +142,7 @@ public class AluguelForm extends JFrame {
             return;
         }
 
-        try (FileWriter writer = new FileWriter("alugueis.txt")) {
+        try (FileWriter writer = new FileWriter("data/alugueis.txt")) {
             for (String registro : alugueis) {
                 writer.write(registro);
             }
